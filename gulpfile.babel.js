@@ -9,9 +9,18 @@ import assign from 'object-assign';
 import browserify from 'browserify';
 import babelify from 'babelify';
 import del from 'del';
+import cssnano from 'gulp-cssnano';
+import sass from 'gulp-sass';
+import concat from 'gulp-concat';
 
-gulp.task('develop',['build', 'copy']);
-gulp.task('build', () => {
+
+gulp.task('dev',[
+  'build.js',
+  'build.copy',
+  'build.scss'
+]);
+
+gulp.task('build.js', () => {
   const b = browserify('src/index.js', { cache:{}, debug: true })
     .transform(babelify)
     .bundle()
@@ -22,17 +31,29 @@ gulp.task('build', () => {
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('public/dist/'));
+    .pipe(gulp.dest('public/dist/js'));
   return b;
 });
 
-gulp.task('copy', () => {
+gulp.task('build.copy', () => {
   let dependencies = [
     'node_modules/angular2/bundles/angular2-polyfills.js',
-    'node_modules/angular2/bundles/angular2-polyfills.min.js'
+    'node_modules/angular2/bundles/angular2-polyfills.min.js',
+    'node_modules/ng2-bootstrap/bundles/ng2-bootstrap.min.js'
   ];
 
   return gulp
     .src(dependencies)
-    .pipe(gulp.dest('public/dist'));
+    .pipe(gulp.dest('public/dist/js/'));
+});
+
+gulp.task('build.scss', () => {
+  return gulp
+    .src('src/**/*.scss')
+    .pipe(sourcemaps.init())
+    .pipe(sass({style: 'compressed'}).on('error', sass.logError))
+    .pipe(cssnano())
+    .pipe(sourcemaps.write())
+    .pipe(concat('style.css'))
+    .pipe(gulp.dest('public/dist/css/'));
 });
