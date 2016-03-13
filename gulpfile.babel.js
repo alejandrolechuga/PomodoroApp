@@ -8,7 +8,8 @@ import sourcemaps from 'gulp-sourcemaps';
 import assign from 'object-assign';
 import browserify from 'browserify';
 import babelify from 'babelify';
-import del from 'del';
+import watchify from 'watchify';
+// import del from 'del';
 import cssnano from 'gulp-cssnano';
 import sass from 'gulp-sass';
 import concat from 'gulp-concat';
@@ -17,22 +18,26 @@ import concat from 'gulp-concat';
 gulp.task('dev',[
   'build.js',
   'build.copy',
-  'build.scss'
+  'build.scss',
+  'build.watch'
 ]);
+
+function bundle(b) {
+  return b.bundle()
+  .on('error', (err) => {
+    console.log(err);
+  })
+  .pipe(source('bundle.js'))
+  .pipe(buffer())
+  .pipe(sourcemaps.init({ loadMaps: true }))
+  .pipe(sourcemaps.write('./'))
+  .pipe(gulp.dest('public/dist/js'));
+}
 
 gulp.task('build.js', () => {
   const b = browserify('src/index.js', { cache:{}, debug: true })
-    .transform(babelify)
-    .bundle()
-    .on('error', (err) => {
-      console.log(err);
-    })
-    .pipe(source('bundle.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('public/dist/js'));
-  return b;
+    .transform(babelify);
+  return bundle(b);
 });
 
 gulp.task('build.copy', () => {
@@ -56,4 +61,13 @@ gulp.task('build.scss', () => {
     .pipe(sourcemaps.write())
     .pipe(concat('style.css'))
     .pipe(gulp.dest('public/dist/css/'));
+});
+
+gulp.task('build.watch', function () {
+  const b = browserify('src/index.js', assign({ debug:true }, watchify.args))
+    .transform(babelify);
+  const w = watchify(b)
+    .on('update', ()=> bundle(w))
+    .on('log', gutil.log);
+  return bundle(w);
 });
