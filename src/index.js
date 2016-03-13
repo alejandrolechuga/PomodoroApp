@@ -7,5 +7,5 @@ import {Pomodoro} from './app';
 
 bootstrap(Pomodoro, [
   ROUTER_PROVIDERS,
-  provide(LocationStrategy, {userClass: HashLocationStrategy})
+  provide(LocationStrategy, { userClass: HashLocationStrategy })
 ]).catch(err => console.error(err));
