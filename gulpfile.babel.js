@@ -13,12 +13,14 @@ import watchify from 'watchify';
 import cssnano from 'gulp-cssnano';
 import sass from 'gulp-sass';
 import concat from 'gulp-concat';
+import rename from 'gulp-rename';
 
 
 gulp.task('dev',[
   'build.js',
   'build.copy',
   'build.scss',
+  'build.html',
   'build.watch'
 ]);
 
@@ -70,4 +72,10 @@ gulp.task('build.watch', function () {
     .on('update', ()=> bundle(w))
     .on('log', gutil.log);
   return bundle(w);
+});
+
+gulp.task('build.html', function () {
+  return gulp.src('src/**/*.html')
+    .pipe(rename({dirname:''}))
+    .pipe(gulp.dest('public/templates'));
 });
