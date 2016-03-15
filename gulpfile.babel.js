@@ -26,14 +26,12 @@ gulp.task('dev',[
 
 function bundle(b) {
   return b.bundle()
-  .on('error', (err) => {
-    console.log(err);
-  })
-  .pipe(source('bundle.js'))
-  .pipe(buffer())
-  .pipe(sourcemaps.init({ loadMaps: true }))
-  .pipe(sourcemaps.write('./'))
-  .pipe(gulp.dest('public/dist/js'));
+    .on('error', (err) => { console.log(err); })
+    .pipe(source('bundle.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('public/dist/js'));
 }
 
 gulp.task('build.js', () => {
